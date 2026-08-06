@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tech TV — YouTube Music & Video Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    body { background-color: #0b1120; color: #f8fafc; font-family: system-ui, -apple-system, sans-serif; }
+    .card-bg { background-color: #131d31; border: 1px solid rgba(255, 255, 255, 0.08); }
+    .btn-teal { background-color: #0d9488; color: #ffffff; }
+    .btn-teal:hover { background-color: #14b8a6; }
+    .btn-purple { background-color: #4c1d95; color: #e9d5ff; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .btn-purple:hover { background-color: #5b21b6; }
+    .btn-dark-teal { background-color: #062026; color: #2dd4bf; border: 1px solid #0d9488; }
+    .btn-dark-purple { background-color: #1e1135; color: #c084fc; border: 1px solid #7e22ce; }
+  </style>
+</head>
+<body class="min-h-screen pb-12 antialiased">
+
+  <!-- Header -->
+  <header class="bg-slate-950 border-b border-white/10 px-4 py-3 sticky top-0 z-50">
+    <div class="max-w-xl mx-auto flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-teal-500 flex items-center justify-center text-slate-950 font-black">
+          <i data-lucide="tv" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h1 class="font-black text-lg tracking-wider text-white">TECH TV</h1>
+          <p class="text-xs text-slate-400">Music Site</p>
+        </div>
+      </div>
+      
+      <div class="flex items-center gap-2">
+        <button onclick="toggleDownloadsMenu(true)" class="text-xs bg-teal-500/10 text-teal-400 border border-teal-500/30 px-3 py-1.5 rounded-full flex items-center gap-1.5 font-bold hover:bg-teal-500/20 transition">
+          <i data-lucide="download-cloud" class="w-4 h-4"></i> Downloads (<span id="dlCount">0</span>)
+        </button>
+
+        <button onclick="refreshNewReleases()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-white/10 px-2.5 py-1.5 rounded-full flex items-center gap-1 font-bold">
+          <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Downloads Menu Modal -->
+  <div id="downloadsModal" class="hidden fixed inset-0 bg-black/85 backdrop-blur-md z-50 p-4 overflow-y-auto">
+    <div class="max-w-xl mx-auto bg-slate-900 border border-teal-500/30 rounded-3xl p-6 my-8 shadow-2xl">
+      <div class="flex justify-between items-center mb-4 border-b border-white/10 pb-3">
+        <h3 class="font-bold text-lg text-white flex items-center gap-2">
+          <i data-lucide="download-cloud" class="w-5 h-5 text-teal-400"></i> Downloads Manager
+        </h3>
+        <button onclick="toggleDownloadsMenu(false)" class="text-slate-400 hover:text-white font-bold text-sm bg-slate-800 px-3 py-1 rounded-full">✕ Close</button>
+      </div>
+
+      <!-- Global Pause/Resume All Bar -->
+      <div class="flex justify-between items-center bg-slate-950 p-3 rounded-2xl border border-white/5 mb-4">
+        <span class="text-xs font-bold text-slate-400">Active Tasks Controls:</span>
+        <button id="btnPauseAll" onclick="togglePauseAllDownloads()" class="bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold px-3 py-1 rounded-lg text-xs flex items-center gap-1">
+          <i data-lucide="pause" class="w-3.5 h-3.5"></i> Pause All
+        </button>
+      </div>
+
+      <!-- Downloads List -->
+      <div id="dlHistoryList" class="flex flex-col gap-3 max-h-96 overflow-y-auto pr-1"></div>
+
+      <div class="mt-4 pt-3 border-t border-white/10 flex justify-between items-center text-xs">
+        <button onclick="clearDownloadHistory()" class="text-red-400 hover:text-red-300 font-bold flex items-center gap-1">
+          <i data-lucide="trash-2" class="w-3.5 h-3.5"></i> Clear Downloads
+        </button>
+        <span class="text-slate-500">Saved to device storage</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Body -->
+  <main class="max-w-xl mx-auto px-4 pt-6">
+
+    <div class="text-center mb-6">
+      <h2 class="text-2xl md:text-3xl font-black text-white mb-2">
+        Download & Stream <br />
+        <span class="text-teal-400">YouTube Music</span>
+      </h2>
+      <p class="text-xs text-slate-400">
+        Search by name, or paste any YouTube link to stream & download in MP3 or MP4.
+      </p>
+    </div>
+
+    <!-- Search Section -->
+    <div class="mb-8">
+      <div class="flex gap-2 mb-3">
+        <button id="btnTabSearch" onclick="setSearchType('search')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-teal-400 text-slate-950 flex items-center gap-1">
+          <i data-lucide="music" class="w-3.5 h-3.5"></i> Videos
+        </button>
+        <button id="btnTabLink" onclick="setSearchType('link')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-slate-800 text-slate-300 flex items-center gap-1">
+          <i data-lucide="link" class="w-3.5 h-3.5"></i> Paste Link
+        </button>
+      </div>
+
+      <div class="flex gap-2">
+        <div class="relative flex-1">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+          <input 
+            type="text" 
+            id="searchInput" 
+            placeholder="Search song, artist name..." 
+            class="w-full bg-slate-900 border border-white/10 rounded-xl py-3 pl-10 pr-3 text-sm text-white focus:outline-none focus:border-teal-500"
+          />
+        </div>
+        <button onclick="executeSearch()" id="searchBtn" class="bg-teal-400 text-slate-950 font-bold px-6 py-3 rounded-xl text-sm active:scale-95 transition">
+          Search
+        </button>
+      </div>
+    </div>
+
+    <!-- Feed Heading -->
+    <div class="flex justify-between items-center mb-4">
+      <h3 id="feedHeading" class="font-extrabold text-base text-white flex items-center gap-2">
+        <i data-lucide="sparkles" class="w-4 h-4 text-teal-400"></i> New Releases from YouTube
+      </h3>
+    </div>
+
+    <!-- Cards Feed -->
+    <div id="cardsList" class="flex flex-col gap-6"></div>
+
+    <div id="bottomLoader" class="hidden text-center py-8 text-slate-400 text-xs">
+      <div class="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+      Loading more videos...
+    </div>
+
+  </main>
+
+  <script>
+    lucide.createIcons();
+    let currentTab = 'search';
+    let currentPage = 1;
+    let isLoadingMore = false;
+    let currentSearchQuery = '';
+    let hasMore = true;
+
+    // Active Downloads Control State
+    let activeControllers = {};
+    let activeBlobUrls = {};
+    let downloadChunks = {};
+    let isAllPaused = false;
+
+    function setSearchType(type) {
+      currentTab = type;
+      document.getElementById('btnTabSearch').className = type === 'search' ? 'px-4 py-1.5 rounded-full text-xs font-bold bg-teal-400 text-slate-950 flex items-center gap-1' : 'px-4 py-1.5 rounded-full text-xs font-bold bg-slate-800 text-slate-300 flex items-center gap-1';
+      document.getElementById('btnTabLink').className = type === 'link' ? 'px-4 py-1.5 rounded-full text-xs font-bold bg-teal-400 text-slate-950 flex items-center gap-1' : 'px-4 py-1.5 rounded-full text-xs font-bold bg-slate-800 text-slate-300 flex items-center gap-1';
+      document.getElementById('searchInput').placeholder = type === 'search' ? 'Search song, artist name...' : 'Paste YouTube link...';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchFeed('', 1, false);
+      updateDownloadHistoryUI();
+    });
+
+    window.addEventListener('scroll', () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 600) {
+        if (!isLoadingMore && hasMore) {
+          loadMoreFeed();
+        }
+      }
+    });
+
+    function refreshNewReleases() {
+      document.getElementById('searchInput').value = '';
+      document.getElementById('feedHeading').innerHTML = `<i data-lucide="sparkles" class="w-4 h-4 text-teal-400"></i> Fresh New Releases from YouTube`;
+      currentSearchQuery = '';
+      currentPage = 1;
+      hasMore = true;
+      fetchFeed('', 1, false);
+    }
+
+    async function fetchFeed(queryText, pageNum = 1, append = false) {
+      const list = document.getElementById('cardsList');
+      if (!append) {
+        list.innerHTML = '<div class="text-center py-12 text-slate-400 text-sm"><div class="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>Fetching YouTube data...</div>';
+      }
+
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(queryText)}&page=${pageNum}`);
+        const data = await res.json();
+        if (Array.isArray(data) && data.length > 0) {
+          renderFeedCards(data, append);
+        } else {
+          if (!append) list.innerHTML = '<div class="text-center py-8 text-slate-400 text-sm">No songs found. Try another search.</div>';
+          hasMore = false;
+        }
+      } catch (err) {
+        if (!append) list.innerHTML = '<div class="text-center py-8 text-slate-400 text-sm">Error connecting to YouTube search engine.</div>';
+      }
+    }
+
+    async function loadMoreFeed() {
+      isLoadingMore = true;
+      currentPage++;
+      const loader = document.getElementById('bottomLoader');
+      if (loader) loader.classList.remove('hidden');
+
+      await fetchFeed(currentSearchQuery, currentPage, true);
+
+      isLoadingMore = false;
+      if (loader) loader.classList.add('hidden');
+    }
+
+    function executeSearch() {
+      const q = document.getElementById('searchInput').value.trim();
+      if (!q) { refreshNewReleases(); return; }
+
+      if (currentTab === 'link') {
+        const match = q.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+        const videoId = (match && match[2].length === 11) ? match[2] : null;
+        if (videoId) {
+          renderFeedCards([{
+            id: videoId,
+            title: "Pasted YouTube Video",
+            uploader: "Direct Link",
+            thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+            url: q
+          }], false);
+          playInline(videoId);
+        } else {
+          alert('Please enter a valid YouTube Link!');
+        }
+        return;
+      }
+
+      currentSearchQuery = q;
+      currentPage = 1;
+      hasMore = true;
+      document.getElementById('feedHeading').innerHTML = `<i data-lucide="search" class="w-4 h-4 text-teal-400"></i> Search Results for: "${q}"`;
+      fetchFeed(q, 1, false);
+    }
+
+    function renderFeedCards(items, append = false) {
+      const list = document.getElementById('cardsList');
+      
+      const cardsHTML = items.map(item => {
+        const safeTitle = item.title.replace(/'/g, "");
+        return `
+        <div id="card_${item.id}" class="card-bg rounded-2xl overflow-hidden shadow-xl border border-white/5">
+          <div id="mediaBox_${item.id}" onclick="playInline('${item.id}')" class="w-full aspect-video bg-slate-900 relative cursor-pointer group">
+            <img src="${item.thumbnail}" class="w-full h-full object-cover group-hover:opacity-85 transition" alt="cover" />
+            <div class="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/20 transition">
+              <div class="w-12 h-12 bg-teal-500 rounded-full flex items-center justify-center text-slate-950 shadow-lg scale-95 group-hover:scale-105 transition">
+                <i data-lucide="play" class="w-6 h-6 fill-current ml-0.5"></i>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4">
+            <h4 onclick="playInline('${item.id}')" class="font-bold text-base text-white mb-0.5 line-clamp-1 cursor-pointer hover:text-teal-400 transition">${item.title}</h4>
+            <p class="text-xs text-slate-400 mb-4">${item.uploader}</p>
+
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="playInline('${item.id}')" class="btn-teal py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="music" class="w-3.5 h-3.5"></i> Stream MP3
+              </button>
+              
+              <button onclick="playInline('${item.id}')" class="btn-purple py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="clapperboard" class="w-3.5 h-3.5"></i> Stream MP4
+              </button>
+
+              <button id="dlMp3_${item.id}" onclick="startDownloadTask('${item.url}', 'mp3', '${safeTitle}', '${item.thumbnail}', 'dlMp3_${item.id}')" class="btn-dark-teal py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i> ↓ MP3
+              </button>
+
+              <button id="dlMp4_${item.id}" onclick="startDownloadTask('${item.url}', 'mp4', '${safeTitle}', '${item.thumbnail}', 'dlMp4_${item.id}')" class="btn-dark-purple py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition">
+                <i data-lucide="download" class="w-3.5 h-3.5"></i> ↓ MP4 720p ▾
+              </button>
+            </div>
+          </div>
+        </div>
+      `}).join('');
+
+      if (append) {
+        list.innerHTML += cardsHTML;
+      } else {
+        list.innerHTML = cardsHTML;
+      }
+      lucide.createIcons();
+    }
+
+    function playInline(id) {
+      const box = document.getElementById(`mediaBox_${id}`);
+      if (!box) return;
+
+      box.onclick = null;
+      box.className = "w-full aspect-video bg-black relative";
+      box.innerHTML = `
+        <iframe src="https://www.youtube-nocookie.com/embed/${id}?autoplay=1" class="w-full h-full" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      `;
+    }
+
+    // LOCALSTORAGE & DOWNLOAD HISTORY MANAGEMENT
+    function getHistory() {
+      return JSON.parse(localStorage.getItem('tech_tv_downloads') || '[]');
+    }
+
+    function saveHistoryItem(item) {
+      let history = getHistory();
+      const existingIdx = history.findIndex(h => h.id === item.id);
+      if (existingIdx !== -1) {
+        history[existingIdx] = { ...history[existingIdx], ...item };
+      } else {
+        history.unshift(item);
+      }
+      localStorage.setItem('tech_tv_downloads', JSON.stringify(history.slice(0, 30)));
+      updateDownloadHistoryUI();
+    }
+
+    function clearDownloadHistory() {
+      localStorage.removeItem('tech_tv_downloads');
+      updateDownloadHistoryUI();
+    }
+
+    function toggleDownloadsMenu(show) {
+      const modal = document.getElementById('downloadsModal');
+      if (show !== undefined) {
+        if (show) modal.classList.remove('hidden');
+        else modal.classList.add('hidden');
+      } else {
+        modal.classList.toggle('hidden');
+      }
+    }
+
+    function updateDownloadHistoryUI() {
+      const history = getHistory();
+      document.getElementById('dlCount').innerText = history.length;
+      const list = document.getElementById('dlHistoryList');
+
+      if (history.length === 0) {
+        list.innerHTML = '<div class="text-center py-8 text-slate-500 text-xs">No downloads yet. Click ↓ MP3 or ↓ MP4 to start downloading!</div>';
+        return;
+      }
+
+      list.innerHTML = history.map(h => `
+        <div id="hist_${h.id}" class="bg-slate-800/90 border border-white/5 p-3 rounded-2xl flex flex-col gap-2">
+          <div class="flex items-center gap-3">
+            <img src="${h.thumbnail}" class="w-14 h-12 object-cover rounded-xl shrink-0" />
+            <div class="flex-1 min-w-0">
+              <h5 class="font-bold text-xs text-white truncate">${h.title}</h5>
+              <div class="flex items-center gap-2 mt-1">
+                <span class="text-[10px] bg-teal-500/20 text-teal-300 font-bold px-1.5 py-0.5 rounded uppercase">${h.type}</span>
+                <span id="speed_${h.id}" class="text-[10px] text-teal-400 font-bold">${h.speed || 'Downloading...'}</span>
+              </div>
+            </div>
+            
+            ${h.status === 'downloading' ? `
+              <button onclick="pauseDownload('${h.id}')" class="bg-amber-500/20 text-amber-300 border border-amber-500/40 font-bold px-2.5 py-1 rounded-lg text-xs flex items-center gap-1 shadow">
+                <i data-lucide="pause" class="w-3 h-3"></i> Pause
+              </button>
+            ` : ''}
+
+            ${h.status === 'paused' ? `
+              <button onclick="resumeDownload('${h.id}')" class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-bold px-2.5 py-1 rounded-lg text-xs flex items-center gap-1 shadow">
+                <i data-lucide="play" class="w-3 h-3"></i> Continue
+              </button>
+            ` : ''}
+
+            ${h.status === 'completed' ? `
+              <button onclick="playDownloadedInMenu('${h.id}')" class="bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold px-3 py-1.5 rounded-xl text-xs flex items-center gap-1 shadow transition">
+                <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Play
+              </button>
+            ` : ''}
+          </div>
+
+          <div class="w-full bg-slate-950 rounded-full h-1.5 overflow-hidden">
+            <div id="bar_${h.id}" class="bg-gradient-to-r from-teal-400 to-emerald-400 h-1.5 rounded-full transition-all duration-300" style="width: ${h.progress || 0}%"></div>
+          </div>
+
+          <div id="playerBox_${h.id}" class="hidden mt-2 pt-2 border-t border-white/10"></div>
+        </div>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function playDownloadedInMenu(id) {
+      const history = getHistory();
+      const item = history.find(h => h.id === id);
+      const box = document.getElementById(`playerBox_${id}`);
+      if (!box || !item) return;
+
+      const blobUrl = activeBlobUrls[id];
+      box.classList.remove('hidden');
+
+      if (item.type === 'MP3') {
+        box.innerHTML = `
+          <audio controls autoplay src="${blobUrl || '#'}" class="w-full h-8 accent-teal-500">
+            Your browser does not support audio element.
+          </audio>
+        `;
+      } else {
+        box.innerHTML = `
+          <video controls autoplay src="${blobUrl || '#'}" class="w-full aspect-video rounded-xl bg-black">
+            Your browser does not support video element.
+          </video>
+        `;
+      }
+    }
+
+    // PAUSE & RESUME CONTROLS
+    function pauseDownload(id) {
+      if (activeControllers[id]) {
+        activeControllers[id].abort();
+        delete activeControllers[id];
+      }
+      saveHistoryItem({ id, status: 'paused', speed: 'Paused ⏸' });
+    }
+
+    function resumeDownload(id) {
+      const history = getHistory();
+      const item = history.find(h => h.id === id);
+      if (item && item.rawMediaUrl) {
+        executeProxyDownloadStream(item.rawMediaUrl, item.type.toLowerCase(), item.title, item.thumbnail, item.btnId, id, item.receivedBytes || 0);
+      }
+    }
+
+    function togglePauseAllDownloads() {
+      const history = getHistory();
+      const btn = document.getElementById('btnPauseAll');
+      
+      if (!isAllPaused) {
+        history.filter(h => h.status === 'downloading').forEach(h => pauseDownload(h.id));
+        isAllPaused = true;
+        btn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5"></i> Resume All`;
+      } else {
+        history.filter(h => h.status === 'paused').forEach(h => resumeDownload(h.id));
+        isAllPaused = false;
+        btn.innerHTML = `<i data-lucide="pause" class="w-3.5 h-3.5"></i> Pause All`;
+      }
+      lucide.createIcons();
+    }
+
+    // DOWNLOAD START & PROXY STREAM EXECUTION
+    async function startDownloadTask(youtubeUrl, type, title, thumbnail, btnId) {
+      const btn = document.getElementById(btnId);
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '⏳ Converting...';
+      btn.disabled = true;
+
+      const downloadId = 'dl_' + Date.now();
+      const mediaType = type.toUpperCase();
+
+      try {
+        const res = await fetch('/api/get-download-link', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: youtubeUrl, type: type })
+        });
+        const data = await res.json();
+
+        if (!data.success || !data.downloadUrl) {
+          alert('Downloader busy, please click download button again!');
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+          return;
+        }
+
+        executeProxyDownloadStream(data.downloadUrl, type, title, thumbnail, btnId, downloadId, 0);
+
+      } catch (err) {
+        alert('Download error. Please click download button again.');
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+      }
+    }
+
+    async function executeProxyDownloadStream(mediaUrl, type, title, thumbnail, btnId, downloadId, startByte = 0) {
+      const btn = document.getElementById(btnId);
+      const mediaType = type.toUpperCase();
+      const controller = new AbortController();
+      activeControllers[downloadId] = controller;
+
+      const dlItem = {
+        id: downloadId,
+        title: title,
+        type: mediaType,
+        thumbnail: thumbnail,
+        speed: 'Starting...',
+        progress: 5,
+        status: 'downloading',
+        rawMediaUrl: mediaUrl,
+        btnId: btnId,
+        receivedBytes: startByte
+      };
+
+      saveHistoryItem(dlItem);
+      toggleDownloadsMenu(true);
+
+      try {
+        const proxyStreamUrl = `/api/stream-file?url=${encodeURIComponent(mediaUrl)}&type=${type}&title=${encodeURIComponent(title)}&start=${startByte}`;
+        const mediaRes = await fetch(proxyStreamUrl, { signal: controller.signal });
+        if (!mediaRes.ok) throw new Error('Proxy stream error');
+
+        const contentLength = mediaRes.headers.get('content-length');
+        const totalBytes = contentLength ? parseInt(contentLength, 10) + startByte : 0;
+
+        const reader = mediaRes.body.getReader();
+        let receivedBytes = startByte;
+        let chunks = downloadChunks[downloadId] || [];
+        let startTime = Date.now();
+        let lastTime = startTime;
+        let lastBytes = startByte;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          chunks.push(value);
+          receivedBytes += value.length;
+          downloadChunks[downloadId] = chunks;
+
+          const now = Date.now();
+          const timeDiff = (now - lastTime) / 1000;
+
+          if (timeDiff >= 0.4) {
+            const bytesDiff = receivedBytes - lastBytes;
+            const speedSec = bytesDiff / timeDiff;
+
+            const speedText = speedSec > 1024 * 1024
+              ? (speedSec / (1024 * 1024)).toFixed(1) + ' MB/s'
+              : (speedSec / 1024).toFixed(0) + ' KB/s';
+
+            const percent = totalBytes ? Math.min(99, Math.round((receivedBytes / totalBytes) * 100)) : 50;
+
+            dlItem.speed = `${speedText} (${percent}%)`;
+            dlItem.progress = percent;
+            dlItem.receivedBytes = receivedBytes;
+            saveHistoryItem(dlItem);
+
+            if (btn) btn.innerHTML = `⬇️ ${percent}% (${speedText})`;
+
+            lastTime = now;
+            lastBytes = receivedBytes;
+          }
+        }
+
+        delete activeControllers[downloadId];
+        const blob = new Blob(chunks, { type: mediaType === 'MP3' ? 'audio/mpeg' : 'video/mp4' });
+        const blobUrl = URL.createObjectURL(blob);
+        activeBlobUrls[downloadId] = blobUrl;
+
+        dlItem.status = 'completed';
+        dlItem.progress = 100;
+        dlItem.speed = 'Completed ✅';
+        saveHistoryItem(dlItem);
+
+        // Direct Save to Device Storage
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = `${title}.${mediaType.toLowerCase()}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        if (btn) {
+          btn.innerHTML = '✅ Saved to Phone!';
+          btn.disabled = false;
+        }
+
+      } catch (err) {
+        if (err.name === 'AbortError') {
+          console.log('Download paused by user');
+        } else {
+          saveHistoryItem({ id: downloadId, status: 'paused', speed: 'Error - Paused ⏸' });
+        }
+      }
+    }
+  </script>
+</body>
+</html>
