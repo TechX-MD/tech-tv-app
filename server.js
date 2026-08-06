@@ -1,10 +1,16 @@
 const express = require('express');
+const path = require('path');
 const yts = require('yt-search');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Explicit Root Route for Vercel
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 
 const NEW_RELEASE_TOPICS = [
   'Amapiano 2026 New Releases',
@@ -47,7 +53,7 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
-// RESOLVE MEDIA DOWNLOAD LINK
+// RESOLVE DOWNLOAD LINK
 app.post('/api/get-download-link', async (req, res) => {
   const { url, type } = req.body;
   if (!url) return res.status(400).json({ error: 'URL missing' });
@@ -104,7 +110,7 @@ app.post('/api/get-download-link', async (req, res) => {
   }
 });
 
-// SERVER-SIDE PROXY STREAM (FIXES ALL CORS & DOWNLOAD ERRORS)
+// PROXY STREAM FILE
 app.get('/api/stream-file', async (req, res) => {
   const { url, title, type, start } = req.query;
   if (!url) return res.status(400).send('URL missing');
@@ -140,10 +146,10 @@ app.get('/api/stream-file', async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`\n===================================`);
-  console.log(`✅ TECH TV CORS-FREE STREAM ENGINE ACTIVE!`);
-  console.log(`👉 Vhura browser pa: http://localhost:${PORT}`);
-  console.log(`===================================\n`);
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log(`Server listening on port ${PORT}`);
+  });
+}
+
 module.exports = app;
