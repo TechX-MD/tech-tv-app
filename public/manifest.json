@@ -15,7 +15,12 @@
   "categories": ["music", "entertainment", "utilities"],
   "iarc_rating_id": "e84b3e5e-a612-4f3d-82d2-5a217c376e18",
   "prefer_related_applications": false,
-  "related_applications": [],
+  "related_applications": [
+    {
+      "platform": "webapp",
+      "url": "https://tech-tv-app.vercel.app/manifest.json"
+    }
+  ],
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3845/3845808.png",
@@ -35,11 +40,12 @@
       "name": "Search Music",
       "short_name": "Search",
       "description": "Quickly search for songs and videos",
-      "url": "/?action=search",
+      "url": "/?shortcut=search",
       "icons": [
         {
           "src": "https://cdn-icons-png.flaticon.com/512/3845/3845808.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
@@ -47,11 +53,12 @@
       "name": "Downloads Manager",
       "short_name": "Downloads",
       "description": "View active downloads and library",
-      "url": "/?action=downloads",
+      "url": "/?shortcut=downloads",
       "icons": [
         {
           "src": "https://cdn-icons-png.flaticon.com/512/3845/3845808.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     }
@@ -70,6 +77,37 @@
       "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Tech TV Mobile View"
+    }
+  ],
+  "widgets": [
+    {
+      "name": "Tech TV Quick Player",
+      "short_name": "Quick Player",
+      "description": "Quickly access recent music",
+      "tag": "techtv-widget",
+      "template": "widget-template",
+      "ms_ac_template": "widget-template.json",
+      "definition": "/widget-definition.json",
+      "icons": [
+        {
+          "src": "https://cdn-icons-png.flaticon.com/512/3845/3845808.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ],
+      "screenshots": [
+        {
+          "src": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=80",
+          "sizes": "800x600",
+          "type": "image/jpeg",
+          "label": "Widget Preview"
+        }
+      ]
+    }
+  ],
+  "scope_extensions": [
+    {
+      "origin": "https://tech-tv-app.vercel.app"
     }
   ],
   "share_target": {
@@ -99,16 +137,10 @@
       "url": "/?q=%s"
     }
   ],
-  "widgets": [],
   "edge_side_panel": {
     "preferred_width": 400
   },
   "note_taking": {
     "new_note_url": "/"
-  },
-  "scope_extensions": [
-    {
-      "origin": "*.vercel.app"
-    }
-  ]
+  }
 }
