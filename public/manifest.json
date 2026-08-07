@@ -1,8 +1,8 @@
 {
   "id": "https://tech-tv-app.vercel.app/",
-  "name": "Tech TV — YouTube Music & Video Hub",
-  "short_name": "Tech TV",
-  "description": "Stream and download your favorite YouTube music tracks and videos in high quality MP3 and MP4 format instantly.",
+  "name": "Tech TV Movies — Stream & Download Movies",
+  "short_name": "Tech TV Movies",
+  "description": "Stream and download your favorite movies, anime, and TV series in high quality MP4 format instantly.",
   "lang": "en",
   "dir": "ltr",
   "scope": "/",
@@ -11,17 +11,8 @@
   "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "portrait",
   "background_color": "#0b1120",
-  "theme_color": "#0d9488",
-  "categories": ["music", "entertainment", "utilities"],
-  "iarc_rating_id": "e84b3e5e-a612-4f3d-82d2-5a217c376e18",
-  "prefer_related_applications": false,
-  "related_applications": [
-    {
-      "platform": "play",
-      "url": "https://play.google.com/store/apps/details?id=com.techtv.app",
-      "id": "com.techtv.app"
-    }
-  ],
+  "theme_color": "#f59e0b",
+  "categories": ["entertainment", "movies"],
   "icons": [
     {
       "src": "/icon.svg",
@@ -35,75 +26,5 @@
       "type": "image/png",
       "purpose": "any maskable"
     }
-  ],
-  "shortcuts": [
-    {
-      "name": "Search Music",
-      "short_name": "Search",
-      "description": "Quickly search for songs and videos",
-      "url": "/",
-      "icons": [
-        {
-          "src": "/icon.svg",
-          "sizes": "any",
-          "type": "image/svg+xml"
-        }
-      ]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1280&h=720&fit=crop",
-      "sizes": "1280x720",
-      "type": "image/jpeg",
-      "form_factor": "wide",
-      "label": "Tech TV Interface View"
-    },
-    {
-      "src": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=720&h=1280&fit=crop",
-      "sizes": "720x1280",
-      "type": "image/jpeg",
-      "form_factor": "narrow",
-      "label": "Tech TV Mobile View"
-    }
-  ],
-  "scope_extensions": [
-    {
-      "origin": "https://tech-tv-app.vercel.app"
-    }
-  ],
-  "share_target": {
-    "action": "/",
-    "method": "GET",
-    "params": {
-      "title": "title",
-      "text": "text",
-      "url": "q"
-    }
-  },
-  "file_handlers": [
-    {
-      "action": "/",
-      "accept": {
-        "audio/mpeg": [".mp3"],
-        "video/mp4": [".mp4"]
-      }
-    }
-  ],
-  "launch_handler": {
-    "client_mode": "focus-existing"
-  },
-  "protocol_handlers": [
-    {
-      "protocol": "web+techtv",
-      "url": "/?q=%s"
-    }
-  ],
-  "widgets": [],
-  "edge_side_panel": {
-    "preferred_width": 400
-  },
-  "note_taking": {
-    "new_note_url": "/"
-  }
+  ]
 }
