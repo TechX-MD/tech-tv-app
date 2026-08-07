@@ -1,13 +1,21 @@
 {
-  "id": "/",
+  "id": "https://tech-tv-app.vercel.app/",
   "name": "Tech TV — YouTube Music & Video Hub",
   "short_name": "Tech TV",
-  "description": "Stream and download YouTube music & videos in MP3 or MP4 format.",
+  "description": "Stream and download your favorite YouTube music tracks and videos in high quality MP3 and MP4 format instantly.",
+  "lang": "en",
+  "dir": "ltr",
+  "scope": "/",
   "start_url": "/",
   "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
   "orientation": "portrait",
   "background_color": "#0b1120",
   "theme_color": "#0d9488",
+  "categories": ["music", "entertainment", "utilities"],
+  "iarc_rating_id": "e84b3e5e-a612-4f3d-82d2-5a217c376e18",
+  "prefer_related_applications": false,
+  "related_applications": [],
   "icons": [
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3845/3845808.png",
@@ -20,6 +28,87 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Search Music",
+      "short_name": "Search",
+      "description": "Quickly search for songs and videos",
+      "url": "/?action=search",
+      "icons": [
+        {
+          "src": "https://cdn-icons-png.flaticon.com/512/3845/3845808.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Downloads Manager",
+      "short_name": "Downloads",
+      "description": "View active downloads and library",
+      "url": "/?action=downloads",
+      "icons": [
+        {
+          "src": "https://cdn-icons-png.flaticon.com/512/3845/3845808.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=80",
+      "sizes": "800x600",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Tech TV Interface View"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600&auto=format&fit=crop&q=80",
+      "sizes": "600x800",
+      "type": "image/jpeg",
+      "form_factor": "narrow",
+      "label": "Tech TV Mobile View"
+    }
+  ],
+  "share_target": {
+    "action": "/",
+    "method": "GET",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "q"
+    }
+  },
+  "file_handlers": [
+    {
+      "action": "/",
+      "accept": {
+        "audio/mpeg": [".mp3"],
+        "video/mp4": [".mp4"]
+      }
+    }
+  ],
+  "launch_handler": {
+    "client_mode": "focus-existing"
+  },
+  "protocol_handlers": [
+    {
+      "protocol": "web+techtv",
+      "url": "/?q=%s"
+    }
+  ],
+  "widgets": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "note_taking": {
+    "new_note_url": "/"
+  },
+  "scope_extensions": [
+    {
+      "origin": "*.vercel.app"
     }
   ]
 }
