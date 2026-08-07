@@ -1,5 +1,5 @@
 {
-  "id": "/",
+  "id": "https://tech-tv-app.vercel.app/",
   "name": "Tech TV — YouTube Music & Video Hub",
   "short_name": "Tech TV",
   "description": "Stream and download your favorite YouTube music tracks and videos in high quality MP3 and MP4 format instantly.",
@@ -15,12 +15,18 @@
   "categories": ["music", "entertainment", "utilities"],
   "iarc_rating_id": "e84b3e5e-a612-4f3d-82d2-5a217c376e18",
   "prefer_related_applications": false,
-  "related_applications": [],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.techtv.app",
+      "id": "com.techtv.app"
+    }
+  ],
   "icons": [
     {
-      "src": "https://cdn-icons-png.flaticon.com/512/3845/3845808.png",
-      "sizes": "192x192",
-      "type": "image/png",
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     },
     {
@@ -38,9 +44,9 @@
       "url": "/",
       "icons": [
         {
-          "src": "https://cdn-icons-png.flaticon.com/512/3845/3845808.png",
-          "sizes": "192x192",
-          "type": "image/png"
+          "src": "/icon.svg",
+          "sizes": "any",
+          "type": "image/svg+xml"
         }
       ]
     }
@@ -63,7 +69,7 @@
   ],
   "scope_extensions": [
     {
-      "origin": "*.vercel.app"
+      "origin": "https://tech-tv-app.vercel.app"
     }
   ],
   "share_target": {
